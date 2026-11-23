@@ -1,0 +1,21 @@
+version: 0.2
+
+phases: 
+  pre_build:
+    commands: 
+      - echo Loggin in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - IMAGE_TAG=latest
+      - IMAGE_REPO_NAME=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/calendly
+  build:
+    commands: 
+      - echo Building the Docker image...
+      - docker build --platform linux/amd64 -t calendly .
+      - docker tag calendly:latest $IMAGE_REPO_NAME:$IMAGE_TAG
+  post_build:
+    commands: 
+      - echo Pushing the Docker image...
+      - docker push $IMAGE_REPO_NAME:$IMAGE_TAG
+
+artifacts:
+  files: []
